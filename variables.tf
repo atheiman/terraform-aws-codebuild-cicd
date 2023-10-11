@@ -1,19 +1,25 @@
 variable "resources_name" {
   type    = string
-  default = "codebuild-cicd-runner"
-}
-
-variable "create_codecommit_repo" {
-  type    = bool
-  default = true
+  default = "codebuild-cicd"
 }
 
 variable "codecommit_repo_name_prefix_to_watch" {
-  type    = string
-  default = ""
+  description = "TODO - not yet implemented"
+  type        = string
+  default     = ""
 }
 
-variable "runner_managed_policy_arns" {
+variable "codecommit_default_branches" {
+  type    = list(string)
+  default = ["main", "master"]
+}
+
+variable "codebuild_concurrent_build_limit" {
+  type    = number
+  default = 3
+}
+
+variable "codebuild_service_role_managed_policy_arns" {
   type    = list(string)
   default = []
 }

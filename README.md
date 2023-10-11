@@ -19,4 +19,13 @@ This Terraform project can quickly setup a CodeBuild project linked to multiple 
 
 # TODO
 
-Make this terraform a consumable module
+1. Make this terraform a consumable module
+1. Additional iam policies attached to codebuild service role
+1. Quickstart walkthrough
+1. Repository name pattern matching to limit which repositories builds are executed for
+1. Repositories mapped to CodeBuild IAM service roles
+   - Example: repos `a` and `b` use service role `admin` but all other repos use the default service role
+   - Implement with complex pattern matching. Dedicated eventbridge rules for each declared repo using `StartBuild` parameter `serviceRoleOverride`. Default rules will need to exclude those repos.
+1. Build for codecommit repos in other regions
+   - README explanation of cross region event routing https://aws.amazon.com/blogs/compute/introducing-cross-region-event-routing-with-amazon-eventbridge/
+1. Support additional tools installed in codebuild image / custom codebuild images?
