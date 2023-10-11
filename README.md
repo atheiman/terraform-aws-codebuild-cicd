@@ -146,7 +146,7 @@ module "codebuild_cicd" {
    - all branches: `terraform fmt -recursive && terraform init -reconfigure && terraform plan`
    - `main` branch: `terraform apply`
 
-### Limitations
+## Limitations
 
 Currently the `buildspec.yml` can be updated on a feature branch to do anything. Items exist on the roadmap below to handle this problem. For now, just be aware that any permissions granted to the CodeBuild service role will be available to all projects to use in their builds on the `main` or `master` branch, and in pull requests. You can review the default permissions granted to the CodeBuild service role - [see `aws_iam_role_policy.codebuild` in `codebuild.tf` on GitHub](https://github.com/atheiman/terraform-aws-codebuild-cicd/blob/main/codebuild.tf).
 
