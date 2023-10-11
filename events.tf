@@ -165,26 +165,26 @@ resource "aws_cloudwatch_event_target" "codecommit_pull_requests_codebuild" {
         "sourceTypeOverride": "CODECOMMIT",
         "sourceVersion": <sourceVersion>,
         "environmentVariablesOverride": [
-           {
-               "name": "CI_PULL_REQUEST_ID",
-               "value": <pullRequestId>,
-               "type": "PLAINTEXT"
-           },
-           {
-               "name": "CI_REPOSITORY_NAME",
-               "value": <repositoryName>,
-               "type": "PLAINTEXT"
-           },
-           {
-               "name": "CI_SOURCE_COMMIT",
-               "value": <sourceCommit>,
-               "type": "PLAINTEXT"
-           },
-           {
-               "name": "CI_DESTINATION_COMMIT",
-               "value": <destinationCommit>,
-               "type": "PLAINTEXT"
-           }
+          {
+            "name": "CI_PULL_REQUEST_ID",
+            "value": <pullRequestId>,
+            "type": "PLAINTEXT"
+          },
+          {
+            "name": "CI_REPOSITORY_NAME",
+            "value": <repositoryName>,
+            "type": "PLAINTEXT"
+          },
+          {
+            "name": "CI_SOURCE_COMMIT",
+            "value": <sourceCommit>,
+            "type": "PLAINTEXT"
+          },
+          {
+            "name": "CI_DESTINATION_COMMIT",
+            "value": <destinationCommit>,
+            "type": "PLAINTEXT"
+          }
         ]
       }
     EOF

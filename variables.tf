@@ -19,7 +19,7 @@ variable "codebuild_concurrent_build_limit" {
   default = 3
 }
 
-variable "codebuild_service_role_managed_policy_arns" {
+variable "codebuild_service_role_extra_managed_policy_arns" {
   type    = list(string)
   default = []
 }
@@ -35,4 +35,9 @@ variable "artifacts_bucket_force_destroy" {
   # TODO
   #default = false
   default = true
+}
+
+variable "codebuild_extra_environment_variables" {
+  type    = list(map(string))
+  default = []
 }

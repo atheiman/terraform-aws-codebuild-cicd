@@ -1,6 +1,6 @@
 resource "aws_iam_role" "codebuild" {
   name_prefix         = "${var.resources_name}-codebuild-"
-  managed_policy_arns = var.codebuild_service_role_managed_policy_arns
+  managed_policy_arns = var.codebuild_service_role_extra_managed_policy_arns
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -92,12 +92,26 @@ resource "aws_codebuild_project" "cicd" {
     image                       = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
-  }
 
-  # environment_variable {
-  #   name  = "SOME_KEY1"
-  #   value = "SOME_VALUE1"
-  # }
+    environment_variable {
+      name  = "CI_ARTIFACTS_BUCKET_NAME"
+      value = aws_s3_bucket.artifacts.id
+    }
+
+    environment_variable {
+      name  = "CI_ARTIFACTS_BUCKET_ARN"
+      value = aws_s3_bucket.artifacts.arn
+    }
+
+    dynamic "environment_variable" {
+      for_each = var.codebuild_extra_environment_variables
+      iterator = env_var
+      content {
+        name  = env_var.value["name"]
+        value = env_var.value["value"]
+      }
+    }
+  }
 
   logs_config {
     cloudwatch_logs {
