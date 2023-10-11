@@ -5,7 +5,7 @@ Terraform module to quickly setup a CodeBuild project linked to multiple CodeCom
 - GitHub: https://github.com/atheiman/terraform-aws-codebuild-cicd
 - Terraform Registry: https://registry.terraform.io/modules/atheiman/codebuild-cicd/aws
 
-# Module Example Usage
+## Module Example Usage
 
 ```hcl
 module "codebuild_cicd" {
@@ -30,7 +30,7 @@ module "codebuild_cicd" {
 }
 ```
 
-# Full Walkthrough
+## Full Walkthrough
 
 ### Deploy the Terraform project
 
@@ -148,7 +148,7 @@ module "codebuild_cicd" {
 
 Currently the `buildspec.yml` can be updated on a feature branch to do anything. Items exist on the roadmap below to handle this problem. For now, just be aware that any permissions granted to the CodeBuild service role will be available to projects to use in their builds. Review the default permissions granted to the CodeBuild service role [`aws_iam_role_policy.codebuild` in `codebuild.tf` on GitHub](https://github.com/atheiman/terraform-aws-codebuild-cicd/blob/main/codebuild.tf).
 
-# Roadmap
+## Roadmap
 
 1. Read `buildspec.yml` only from default branch - not sure if this is possible
 1. Only build pull requests once approved by a different user

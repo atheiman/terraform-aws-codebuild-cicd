@@ -30,12 +30,8 @@ resource "aws_iam_role_policy" "codebuild" {
         Effect = "Allow"
         Action = [
           "codecommit:GitPull",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:BatchGetImage",
-          "ecr:GetAuthorizationToken",
-          "ecr:GetDownloadUrlForLayer",
         ]
-        Resource = "*"
+        Resource = "*" # TODO: restrict resources for above actions
       },
       {
         Effect = "Allow"
@@ -74,6 +70,13 @@ resource "aws_s3_bucket" "artifacts" {
     "-"
   )
   force_destroy = var.artifacts_bucket_force_destroy
+}
+
+resource "aws_s3_bucket_versioning" "artifacts" {
+  bucket = aws_s3_bucket.artifacts.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 resource "aws_codebuild_project" "cicd" {
