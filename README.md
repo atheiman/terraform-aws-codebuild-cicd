@@ -11,7 +11,11 @@ Terraform module to quickly setup a CodeBuild project linked to multiple CodeCom
 module "codebuild_cicd" {
   source = "atheiman/codebuild-cicd/aws"
 
-  # Specify additional iam policy arns to attach to codebuild service role
+  ######################
+  # Optional Variables #
+  ######################
+
+  # Specify extra IAM policy ARNs to attach to the CodeBuild service role
   # Warning - these permissions will be available to all builds on all CodeCommit repositories
   codebuild_service_role_extra_managed_policy_arns = ["arn:aws:iam::aws:policy/ReadOnlyAccess"]
 
