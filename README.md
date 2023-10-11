@@ -4,20 +4,16 @@ This Terraform project can quickly setup a CodeBuild project linked to multiple 
 
 # Usage
 
-1. Reference this module and deploy using terraform locally
+1. Reference this module and deploy using terraform
    ```hcl
-   # TODO
-   module "tf_cicd" {
-     source = "whatever"
+   module "codebuild_cicd" {
+     source = "atheiman/codebuild-cicd/aws"
+
+     codebuild_service_role_managed_policy_arns = []
    }
    ```
-1. Update the terraform to use provider role shown in the outputs
-1. Commit the terraform to a new branch of the codecommit repository
-1. Create a pull request and review the terraform plan on the pull request
-1. Merge the pull request and see the plan applied
-1. Create additional terraform codecommit repositories following the naming scheme and they will also have integrated terraform plan and applies
 
-# TODO
+# Roadmap
 
 1. Make this terraform a consumable module
 1. Additional iam policies attached to codebuild service role
@@ -29,3 +25,4 @@ This Terraform project can quickly setup a CodeBuild project linked to multiple 
 1. Build for codecommit repos in other regions
    - README explanation of cross region event routing https://aws.amazon.com/blogs/compute/introducing-cross-region-event-routing-with-amazon-eventbridge/
 1. Support additional tools installed in codebuild image / custom codebuild images?
+1. Pull request comment Lambda function to check for `buildspec.yml` in branch - if build errors because `buildspec.yml` not found, comment on pull request that the repo should add a `buildspec.yml` to use CI/CD.
