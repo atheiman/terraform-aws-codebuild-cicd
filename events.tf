@@ -59,42 +59,23 @@ resource "aws_iam_role_policy" "events" {
 #         "repositoryName": "some-repo"
 #     }
 # }
-resource "aws_cloudwatch_event_rule" "codecommit_default_branches" {
-  name_prefix = substr("${var.resources_name}-default-branches-", 0, 38)
-  description = "Start CodeBuild CI/CD on CodeCommit repositories default branch events."
+resource "aws_cloudwatch_event_rule" "codecommit_branch_push" {
+  name_prefix = substr("${var.resources_name}-branch-push-", 0, 38)
+  description = "Start CodeBuild CI/CD on CodeCommit repositories branch events."
 
   event_pattern = jsonencode({
     source      = ["aws.codecommit"]
     detail-type = ["CodeCommit Repository State Change"]
-    # TODO: filter with var.codecommit_repo_name_prefix_to_watch
-    #resources = []
     detail = {
-      event         = ["referenceCreated", "referenceUpdated"]
-      referenceName = var.codecommit_default_branches
+      event = ["referenceCreated", "referenceUpdated"]
     }
   })
 }
 
-resource "aws_cloudwatch_event_target" "codecommit_default_branches_codebuild" {
-  rule      = aws_cloudwatch_event_rule.codecommit_default_branches.name
-  target_id = "CodeBuild"
-  arn       = aws_codebuild_project.cicd.arn
-  role_arn  = aws_iam_role.events.arn
-  input_transformer {
-    input_paths = {
-      region         = "$.region",
-      repositoryName = "$.detail.repositoryName",
-      sourceVersion  = "$.detail.referenceName"
-    }
-    input_template = <<-EOF
-      {
-        "buildspecOverride": "buildspec.yml",
-        "sourceLocationOverride": "https://git-codecommit.<region>.amazonaws.com/v1/repos/<repositoryName>",
-        "sourceTypeOverride": "CODECOMMIT",
-        "sourceVersion": <sourceVersion>
-      }
-    EOF
-  }
+resource "aws_cloudwatch_event_target" "codecommit_branch_push_lambda" {
+  rule      = aws_cloudwatch_event_rule.codecommit_branch_push.name
+  target_id = "Lambda"
+  arn       = aws_lambda_function.codebuild_start_build.arn
 }
 
 # Example 'CodeCommit Pull Request State Change' event
@@ -133,8 +114,6 @@ resource "aws_cloudwatch_event_rule" "codecommit_pull_requests" {
   event_pattern = jsonencode({
     source      = ["aws.codecommit"]
     detail-type = ["CodeCommit Pull Request State Change"]
-    # TODO: filter with var.codecommit_repo_name_prefix_to_watch
-    #resources = []
     detail = {
       event = [
         "pullRequestCreated",
@@ -144,52 +123,12 @@ resource "aws_cloudwatch_event_rule" "codecommit_pull_requests" {
   })
 }
 
-resource "aws_cloudwatch_event_target" "codecommit_pull_requests_codebuild" {
+resource "aws_cloudwatch_event_target" "codecommit_pull_requests_lambda" {
   rule      = aws_cloudwatch_event_rule.codecommit_pull_requests.name
-  target_id = "CodeBuild"
-  arn       = aws_codebuild_project.cicd.arn
-  role_arn  = aws_iam_role.events.arn
-  input_transformer {
-    input_paths = {
-      region            = "$.region",
-      sourceVersion     = "$.detail.sourceCommit",
-      pullRequestId     = "$.detail.pullRequestId",
-      repositoryName    = "$.detail.repositoryNames[0]",
-      sourceCommit      = "$.detail.sourceCommit",
-      destinationCommit = "$.detail.destinationCommit",
-    }
-    input_template = <<-EOF
-      {
-        "buildspecOverride": "buildspec.yml",
-        "sourceLocationOverride": "https://git-codecommit.<region>.amazonaws.com/v1/repos/<repositoryName>",
-        "sourceTypeOverride": "CODECOMMIT",
-        "sourceVersion": <sourceVersion>,
-        "environmentVariablesOverride": [
-          {
-            "name": "CI_PULL_REQUEST_ID",
-            "value": <pullRequestId>,
-            "type": "PLAINTEXT"
-          },
-          {
-            "name": "CI_REPOSITORY_NAME",
-            "value": <repositoryName>,
-            "type": "PLAINTEXT"
-          },
-          {
-            "name": "CI_SOURCE_COMMIT",
-            "value": <sourceCommit>,
-            "type": "PLAINTEXT"
-          },
-          {
-            "name": "CI_DESTINATION_COMMIT",
-            "value": <destinationCommit>,
-            "type": "PLAINTEXT"
-          }
-        ]
-      }
-    EOF
-  }
+  target_id = "Lambda"
+  arn       = aws_lambda_function.codebuild_start_build.arn
 }
+
 
 # Example 'CodeBuild Build State Change' event
 # {

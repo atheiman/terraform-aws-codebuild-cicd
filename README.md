@@ -1,6 +1,6 @@
 # terraform-aws-codebuild-cicd
 
-Terraform module to quickly setup a CodeBuild project linked to multiple CodeCommit repositories. CodeBuild will run the `buildspec.yml` in each CodeCommit repository when `main` or `master` branch is pushed to. If a branch has an open pull request, a build will run for the pull request source branch and the build status will be commented on the pull request.
+Terraform module to quickly setup a CodeBuild project linked to multiple CodeCommit repositories. CodeBuild will run the `buildspec.yml` in each CodeCommit repository when the default branch is pushed to. If a branch has an open pull request, a build will run for the pull request source branch and the build status will be commented on the pull request.
 
 - GitHub: https://github.com/atheiman/terraform-aws-codebuild-cicd
 - Terraform Registry: https://registry.terraform.io/modules/atheiman/codebuild-cicd/aws
@@ -24,15 +24,25 @@ module "codebuild_cicd" {
   codebuild_extra_environment_variables = [
     {
       name  = "CI_MY_COLOR"
-      value = "blue"
+      value = "Blue"
     },
     {
       name  = "CI_MY_NUMBER"
       value = 4 # Will be converted to string
     },
+    {
+      name  = "CI_ARTIFACTS_BUCKET"
+      value = aws_s3_bucket.artifacts.id
+    },
   ]
 }
 ```
+
+## Usage Notes
+
+- CodeBuild builds are automatically started for all CodeCommit repositories in the account and region this project is deployed to. Specifically:
+  - Builds are automatically started for every commit to the default branch of every repository.
+  - Builds are automatically started for every pull request that is opened (with any destination branch), and for every push to update the source branch of an existing pull request. `buildspec.yml` will be loaded from the default branch by default (set `codebuild_load_buildspec_from_default_branch` to `false` to override this behavior).
 
 ## Full Walkthrough
 
@@ -152,8 +162,7 @@ Currently the `buildspec.yml` can be updated on a feature branch to do anything.
 
 ## Roadmap
 
-1. Read `buildspec.yml` only from default branch - not sure if this is possible
-1. Only build pull requests once approved by a different user
+1. Only build pull requests once approved by a different user or commented on (similar to Jenkins comment to build feature)
 1. Readme updated to show detailed instructions for managing this infrastructure via codecommit / codebuild
 1. Pull request Lambda function to approve pull requests when builds succeed, and remove approval when builds are in progress.
 1. Repositories mapped to CodeBuild IAM service roles
@@ -162,7 +171,6 @@ Currently the `buildspec.yml` can be updated on a feature branch to do anything.
    - Need to declare default permissions in managed policy and output policy arn for other roles to attach.
 1. Repository name pattern matching to limit which repositories builds are executed for
    - List and/or pattern of repo names to build / not build? Probably easier to just do a list of what to build and what not to build?
-1. Readme updated to show using artifact bucket from within CodeBuild job
 1. Restrict elevated permissions to `main` / `master` builds?
 1. Build for codecommit repos in other regions
    - README explanation of cross region event routing https://aws.amazon.com/blogs/compute/introducing-cross-region-event-routing-with-amazon-eventbridge/
