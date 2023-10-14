@@ -18,7 +18,7 @@ variable "codebuild_service_role_extra_managed_policy_arns" {
 
 variable "codebuild_load_buildspec_from_default_branch" {
   type        = bool
-  description = "Load buildspec.yml from the default branch of a repository on pull request builds"
+  description = "On pull request builds, load buildspec.yml from the default branch of the repository being built"
   default     = true
 }
 
