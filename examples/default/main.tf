@@ -21,3 +21,7 @@ output "codebuild_project_arn" {
 output "codebuild_service_role_policy_arn" {
   value = module.codebuild_cicd.codebuild_service_role_policy_arn
 }
+
+output "codecommit_approval_rule_template_name" {
+  value = module.codebuild_cicd.codecommit_approval_rule_template_name
+}
