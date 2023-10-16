@@ -39,6 +39,16 @@ module "codebuild_cicd" {
   # CodeCommit repositories in this region to apply an approval rule template to requiring
   # successful builds
   codecommit_approval_rule_template_associated_repositories = ["my-repository"]
+
+  # Mapping of repository names to custom settings.
+  repository_customizations = {
+    "my-repository" = {
+      # Ensure the service role trusts service principal "codebuild.amazonaws.com". Module output
+      # `codebuild_service_role_policy_arn` is the minimum IAM policy to apply to custom service
+      # roles for basic CodeBuild functionality.
+      codebuild_service_role_arn = aws_iam_role.my_custom_codebuild_service_role.arn
+    }
+  }
 }
 ```
 
