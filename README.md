@@ -59,7 +59,8 @@ phases:
 
 You can view the variables available from CodeBuild here: https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html. In addition, these environment variables are set in builds triggered by this project:
 
-|| Variable || Example Value(s) || Notes ||
+| Environment Variable | Example Value(s) | Notes |
+| -------------------- | ---------------- | ----- |
 | `CI_REPOSITORY_NAME` | `my-codecommit-project` | The name of the CodeCommit project related to the build. |
 | `CI_COMMIT_REF_NAME` | `main`, `my-feature-branch` | The name of the source ref (typically a branch) related to the build. |
 | `CI_REPOSITORY_NAME` | `my-codecommit-project` | The name of the CodeCommit project related to the build. |
