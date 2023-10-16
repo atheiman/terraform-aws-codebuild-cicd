@@ -44,6 +44,29 @@ module "codebuild_cicd" {
   - Builds are automatically started for every commit to the default branch of every repository.
   - Builds are automatically started for every pull request that is opened (with any destination branch), and for every push to update the source branch of an existing pull request. `buildspec.yml` will be loaded from the default branch by default (set `codebuild_load_buildspec_from_default_branch` to `false` to override this behavior).
 
+### Available Environment Variables
+
+To get a full list of environment variables available in your build, run the `env` command in a build. Example:
+
+```yaml
+# https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-syntax
+version: 0.2
+phases:
+  build:
+    commands:
+      - env | sort
+```
+
+You can view the variables available from CodeBuild here: https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html. In addition, these environment variables are set in builds triggered by this project:
+
+|| Variable || Example Value(s) || Notes ||
+| `CI_REPOSITORY_NAME` | `my-codecommit-project` | The name of the CodeCommit project related to the build. |
+| `CI_COMMIT_REF_NAME` | `main`, `my-feature-branch` | The name of the source ref (typically a branch) related to the build. |
+| `CI_REPOSITORY_NAME` | `my-codecommit-project` | The name of the CodeCommit project related to the build. |
+| `CI_DESTINATION_COMMIT` | `7674e88683d18f92e53edbabbc3aac52768dbaa4` | **Pull request builds only.** The full commit sha of the destination branch related to the pull request. |
+| `CI_PULL_REQUEST_ID` | `4`, `16` | **Pull request builds only.** The ID of the pull request related to the build. |
+| `CI_SOURCE_COMMIT` | `e12ff82bc22beec38f7a03d0d99c57d319b76a32` | **Pull request builds only.** The full commit sha of the source being built. |
+
 ## Full Walkthrough
 
 ### Deploy the Terraform project
@@ -93,11 +116,11 @@ module "codebuild_cicd" {
       phases:
         build:
           commands:
-          - env | sort
-          - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
-          - if [ "$CODEBUILD_SOURCE_VERSION" == 'main' ]; then
-              echo "Do something special on builds for the 'main' branch here";
-            fi
+            - env | sort
+            - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
+            - if [ "$CODEBUILD_SOURCE_VERSION" == 'main' ]; then
+                echo "Do something special on builds for the 'main' branch here";
+              fi
       ```
 1. View the CodeBuild build for the `main` branch of your repository
    1. Open the CodeBuild console in the same account and region you deployed the terraform above.
@@ -115,14 +138,14 @@ module "codebuild_cicd" {
    phases:
      build:
        commands:
-       - env | sort
-       - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
+         - env | sort
+         - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
 
-       - python -m py_compile *.py
+         - python -m py_compile *.py
 
-       - if [ "$CODEBUILD_SOURCE_VERSION" == 'main' ]; then
-           echo "Do something special on builds for the 'main' branch here";
-         fi
+         - if [ "$CODEBUILD_SOURCE_VERSION" == 'main' ]; then
+             echo "Do something special on builds for the 'main' branch here";
+           fi
    ```
 1. Add a Python file `script.py` on the `my-feature` branch with the below content to be checked by the build:
    ```python
@@ -155,10 +178,6 @@ module "codebuild_cicd" {
 1. Update the `buildspec.yml` commands:
    - all branches: `terraform fmt -recursive && terraform init -reconfigure && terraform plan`
    - `main` branch: `terraform apply`
-
-## Limitations
-
-Currently the `buildspec.yml` can be updated on a feature branch to do anything. Items exist on the roadmap below to handle this problem. For now, just be aware that any permissions granted to the CodeBuild service role will be available to all projects to use in their builds on the `main` or `master` branch, and in pull requests. You can review the default permissions granted to the CodeBuild service role - [see `aws_iam_role_policy.codebuild` in `codebuild.tf` on GitHub](https://github.com/atheiman/terraform-aws-codebuild-cicd/blob/main/codebuild.tf).
 
 ## Roadmap
 
