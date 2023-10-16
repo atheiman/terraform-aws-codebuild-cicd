@@ -135,6 +135,7 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
             - env | sort
             - aws sts get-caller-identity
             - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
+            - for f in $(find * -type f -name '*.py'); do python -m py_compile "$f"; done
             - if [ "$CODEBUILD_SOURCE_VERSION" == 'main' ]; then
                 echo "Do something special on builds for the 'main' branch here";
               fi
@@ -148,23 +149,6 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
 ### Automatically build and post build status to pull requests
 
 1. Create a feature branch `my-feature` from the branch `main` on the `example-cicd-usage` CodeCommit repository created above.
-1. Update `buildspec.yml` on the `my-feature` branch to add a new command in the build that will check the syntax of Python files:
-   ```yaml
-   # https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-syntax
-   version: 0.2
-   phases:
-     build:
-       commands:
-         - env | sort
-         - aws sts get-caller-identity
-         - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
-
-         - python -m py_compile *.py
-
-         - if [ "$CODEBUILD_SOURCE_VERSION" == 'main' ]; then
-             echo "Do something special on builds for the 'main' branch here";
-           fi
-   ```
 1. Add a Python file `script.py` on the `my-feature` branch with the below content to be checked by the build:
    ```python
    print "hello world"
