@@ -81,6 +81,8 @@ def handler(event, context):
     repo = codecommit.get_repository(repositoryName="example-cicd-usage")["repositoryMetadata"]
     default_branch = repo["defaultBranch"]
 
+    repo_customizations = json.loads(os.environ["REPOSITORY_CUSTOMIZATIONS_JSON"]).get(repo_name, {})
+
     build_env_vars = [
         {"name": "CI_REPOSITORY_NAME", "value": repo_name, "type": "PLAINTEXT"},
     ]
@@ -92,6 +94,9 @@ def handler(event, context):
         "sourceLocationOverride": f"https://git-codecommit.{region}.amazonaws.com/v1/repos/{repo_name}",
         "sourceTypeOverride": "CODECOMMIT",
     }
+
+    if "codebuild_service_role_arn" in repo_customizations:
+        start_build_kwargs["serviceRoleOverride"] = repo_customizations["codebuild_service_role_arn"].split("/")[-1]
 
     # Branch events
     if event["detail-type"] == "CodeCommit Repository State Change":

@@ -1,3 +1,11 @@
+locals {
+  custom_codebuild_service_role_arns = distinct(
+    compact(
+      [for r in var.repository_customizations : lookup(r, "codebuild_service_role_arn", null)]
+    )
+  )
+}
+
 resource "aws_iam_role" "lambda" {
   name_prefix         = "${var.resources_name}-lambda-"
   managed_policy_arns = ["arn:${data.aws_partition.current.id}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"]
@@ -18,32 +26,54 @@ resource "aws_iam_role" "lambda" {
       }
     ]
   })
-}
 
-resource "aws_iam_role_policy" "lambda" {
-  role = aws_iam_role.lambda.id
+  inline_policy {
+    name = "Inline"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect = "Allow"
+          Action = [
+            "codecommit:GetFile",
+            "codecommit:GetPullRequest",
+            "codecommit:GetRepository",
+            "codecommit:PostCommentForPullRequest",
+            "codecommit:UpdatePullRequestApprovalState",
+          ]
+          Resource = "*"
+        },
+        {
+          Effect   = "Allow"
+          Action   = "codebuild:StartBuild",
+          Resource = aws_codebuild_project.cicd.arn,
+        },
+      ]
+    })
+  }
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "codecommit:GetFile",
-          "codecommit:GetPullRequest",
-          "codecommit:GetRepository",
-          "codecommit:PostCommentForPullRequest",
-          "codecommit:UpdatePullRequestApprovalState",
+  dynamic "inline_policy" {
+    for_each = length(local.custom_codebuild_service_role_arns) > 0 ? [1] : []
+
+    content {
+      name = "PassRole"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect   = "Allow"
+            Action   = "iam:PassRole",
+            Resource = local.custom_codebuild_service_role_arns,
+            Condition = {
+              StringEquals = {
+                "iam:PassedToService" = "codebuild.amazonaws.com"
+              }
+            }
+          },
         ]
-        Resource = "*"
-      },
-      {
-        Effect   = "Allow"
-        Action   = "codebuild:StartBuild",
-        Resource = aws_codebuild_project.cicd.arn
-      },
-    ]
-  })
+      })
+    }
+  }
 }
 
 data "archive_file" "lambda" {
@@ -53,7 +83,6 @@ data "archive_file" "lambda" {
 }
 
 # CodeBuild start build
-
 resource "aws_lambda_function" "codebuild_start_build" {
   function_name    = "${var.resources_name}-codebuild-start-build"
   filename         = data.archive_file.lambda.output_path
@@ -67,6 +96,7 @@ resource "aws_lambda_function" "codebuild_start_build" {
     variables = {
       CODEBUILD_PROJECT_NAME                       = aws_codebuild_project.cicd.name
       CODEBUILD_LOAD_BUILDSPEC_FROM_DEFAULT_BRANCH = var.codebuild_load_buildspec_from_default_branch
+      REPOSITORY_CUSTOMIZATIONS_JSON               = jsonencode(var.repository_customizations)
     }
   }
 }
@@ -93,7 +123,6 @@ resource "aws_lambda_permission" "codebuild_start_build_cloudwatch_codecommit_pu
 }
 
 # Pull request build status
-
 resource "aws_lambda_function" "pull_request_build_status" {
   function_name    = "${var.resources_name}-pull-request-build-status"
   filename         = data.archive_file.lambda.output_path

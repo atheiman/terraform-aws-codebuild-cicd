@@ -123,6 +123,7 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
         build:
           commands:
             - env | sort
+            - aws sts get-caller-identity
             - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
             - if [ "$CODEBUILD_SOURCE_VERSION" == 'main' ]; then
                 echo "Do something special on builds for the 'main' branch here";
@@ -145,6 +146,7 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
      build:
        commands:
          - env | sort
+         - aws sts get-caller-identity
          - echo "Running build for source '$CODEBUILD_SOURCE_VERSION'"
 
          - python -m py_compile *.py
@@ -189,7 +191,6 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
 
 1. Only build pull requests once approved by a different user or commented on (similar to Jenkins comment to build feature)
 1. Readme updated to show detailed instructions for managing this infrastructure via codecommit / codebuild
-1. Pull request Lambda function to approve pull requests when builds succeed, and remove approval when builds are in progress.
 1. Repositories mapped to CodeBuild IAM service roles
    - Example: repos `a` and `b` use service role `admin` but all other repos use the default service role
    - Implement with complex pattern matching. Dedicated eventbridge rules for each declared repo using `StartBuild` parameter `serviceRoleOverride`. Default rules will need to exclude those repos.
