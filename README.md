@@ -64,9 +64,9 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
 | `CI_REPOSITORY_NAME` | `my-codecommit-project` | The name of the CodeCommit project related to the build. |
 | `CI_COMMIT_REF_NAME` | `main`, `my-feature-branch` | The name of the source ref (typically a branch) related to the build. |
 | `CI_REPOSITORY_NAME` | `my-codecommit-project` | The name of the CodeCommit project related to the build. |
-| `CI_DESTINATION_COMMIT` | `7674e88683d18f92e53edbabbc3aac52768dbaa4` | **Pull request builds only.** The full commit sha of the destination branch related to the pull request. |
-| `CI_PULL_REQUEST_ID` | `4`, `16` | **Pull request builds only.** The ID of the pull request related to the build. |
-| `CI_SOURCE_COMMIT` | `e12ff82bc22beec38f7a03d0d99c57d319b76a32` | **Pull request builds only.** The full commit sha of the source being built. |
+| `CI_DESTINATION_COMMIT` | `7674e88683d18f92e53edbabbc3aac52768dbaa4` | *Pull request builds only.* The full commit sha of the destination branch related to the pull request. |
+| `CI_PULL_REQUEST_ID` | `4`, `16` | *Pull request builds only.* The ID of the pull request related to the build. |
+| `CI_SOURCE_COMMIT` | `e12ff82bc22beec38f7a03d0d99c57d319b76a32` | *Pull request builds only.* The full commit sha of the source being built. |
 
 ## Full Walkthrough
 
