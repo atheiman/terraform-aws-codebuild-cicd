@@ -99,7 +99,12 @@ def handler(event, context):
             # Only build default branch
             return
 
+        build_env_vars += [
+            {"name": "CI_COMMIT_REF_NAME", "value": event["detail"]["referenceName"], "type": "PLAINTEXT"},
+        ]
+
         start_build_kwargs = start_build_kwargs | {
+            "environmentVariablesOverride": build_env_vars,
             "sourceVersion": event["detail"]["referenceName"],
         }
 
@@ -112,6 +117,11 @@ def handler(event, context):
             buildspec = buildspec_file_b["fileContent"].decode()
 
         build_env_vars += [
+            {
+                "name": "CI_COMMIT_REF_NAME",
+                "value": event["detail"]["sourceReference"].split("/")[-1],
+                "type": "PLAINTEXT",
+            },
             {"name": "CI_DESTINATION_COMMIT", "value": event["detail"]["destinationCommit"], "type": "PLAINTEXT"},
             {"name": "CI_PULL_REQUEST_ID", "value": event["detail"]["pullRequestId"], "type": "PLAINTEXT"},
             {"name": "CI_SOURCE_COMMIT", "value": event["detail"]["sourceCommit"], "type": "PLAINTEXT"},
