@@ -65,6 +65,8 @@ def handler(event, context):
         )
         return
 
+    pr = codecommit.get_pull_request(pullRequestId=pull_request_id)["pullRequest"]
+
     build_arn = event["detail"]["build-id"]
     build_arn_elements = build_arn.split(":")
     build_region = build_arn_elements[3]
@@ -73,6 +75,10 @@ def handler(event, context):
 
     if event["detail"]["build-status"] == "SUCCEEDED":
         content = b"\\u2705 ".decode("unicode-escape")  # heavy check mark
+        # Approve the pull request - approvals are automatically removed when new commits are pushed to the pull request.
+        codecommit.update_pull_request_approval_state(
+            pullRequestId=pull_request_id, revisionId=pr["revisionId"], approvalState="APPROVE"
+        )
     elif event["detail"]["build-status"] in ["FAILED", "STOPPED"]:
         content = b"\\u274c ".decode("unicode-escape")  # X ("cross mark")
     elif event["detail"]["build-status"] in ["IN_PROGRESS"]:

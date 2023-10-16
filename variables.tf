@@ -27,3 +27,9 @@ variable "codebuild_extra_environment_variables" {
   description = "Extra environment variables to be set on the CodeBuild project"
   default     = []
 }
+
+variable "codecommit_approval_rule_template_associated_repositories" {
+  type        = list(string)
+  description = "List of existing CodeCommit repositories to which an approval rule template will be applied requiring successful CodeBuild build on pull requests"
+  default     = []
+}

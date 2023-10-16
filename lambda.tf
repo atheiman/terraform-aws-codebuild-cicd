@@ -30,8 +30,10 @@ resource "aws_iam_role_policy" "lambda" {
         Effect = "Allow"
         Action = [
           "codecommit:GetFile",
+          "codecommit:GetPullRequest",
           "codecommit:GetRepository",
           "codecommit:PostCommentForPullRequest",
+          "codecommit:UpdatePullRequestApprovalState",
         ]
         Resource = "*"
       },

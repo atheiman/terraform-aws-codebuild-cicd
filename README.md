@@ -35,6 +35,10 @@ module "codebuild_cicd" {
       value = aws_s3_bucket.artifacts.id
     },
   ]
+
+  # CodeCommit repositories in this region to apply an approval rule template to requiring
+  # successful builds
+  codecommit_approval_rule_template_associated_repositories = ["my-repository"]
 }
 ```
 
@@ -43,6 +47,7 @@ module "codebuild_cicd" {
 - CodeBuild builds are automatically started for all CodeCommit repositories in the account and region this project is deployed to. Specifically:
   - Builds are automatically started for every commit to the default branch of every repository.
   - Builds are automatically started for every pull request that is opened (with any destination branch), and for every push to update the source branch of an existing pull request. `buildspec.yml` will be loaded from the default branch by default (set `codebuild_load_buildspec_from_default_branch` to `false` to override this behavior).
+- If pull request builds succeed, an IAM role from this project will approve the pull request.
 
 ### Available Environment Variables
 
