@@ -65,7 +65,7 @@ codebuild = boto3.client("codebuild", region_name=os.environ["AWS_REGION"])
 
 
 def handler(event, context):
-    print("received event:")
+    print("Received event:")
     print(json.dumps(event))
 
     if event["detail-type"] not in [
@@ -81,7 +81,17 @@ def handler(event, context):
     repo = codecommit.get_repository(repositoryName="example-cicd-usage")["repositoryMetadata"]
     default_branch = repo["defaultBranch"]
 
-    repo_customizations = json.loads(os.environ["REPOSITORY_CUSTOMIZATIONS_JSON"]).get(repo_name, {})
+    repos_denied = json.loads(os.environ["CODECOMMIT_REPOSITORIES_DENIED_JSON"])
+    if repo_name in repos_denied:
+        print(f"Not building repository '{repo_name}' - found in deny list: {repos_denied}")
+        return
+
+    repos_allowed = json.loads(os.environ["CODECOMMIT_REPOSITORIES_ALLOWED_JSON"])
+    if repos_allowed and repo_name not in repos_allowed:
+        print(f"Not building repository '{repo_name}' - not found in allow list: {repos_allowed}")
+        return
+
+    repo_customizations = json.loads(os.environ["CODECOMMIT_REPOSITORIES_CUSTOMIZATIONS_JSON"]).get(repo_name, {})
 
     build_env_vars = [
         {"name": "CI_REPOSITORY_NAME", "value": repo_name, "type": "PLAINTEXT"},
@@ -102,6 +112,10 @@ def handler(event, context):
     if event["detail-type"] == "CodeCommit Repository State Change":
         if event["detail"]["referenceType"] != "branch" or event["detail"]["referenceName"] != default_branch:
             # Only build default branch
+            print(
+                f"Not building '{event['detail']['referenceType']}' '{event['detail']['referenceName']}' - "
+                f"not default branch '{default_branch}'"
+            )
             return
 
         build_env_vars += [
@@ -116,6 +130,7 @@ def handler(event, context):
     # Pull request events
     if event["detail-type"] == "CodeCommit Pull Request State Change":
         if os.environ["CODEBUILD_LOAD_BUILDSPEC_FROM_DEFAULT_BRANCH"].lower() == "true":
+            print(f"Loading '{repo_name}' buildspec.yml from default branch '{default_branch}'")
             buildspec_file_b = codecommit.get_file(
                 repositoryName=repo_name, commitSpecifier=default_branch, filePath="buildspec.yml"
             )
@@ -138,7 +153,7 @@ def handler(event, context):
             "sourceVersion": event["detail"]["sourceCommit"],
         }
 
-    print("starting CodeBuild with arguments:")
+    print("Starting CodeBuild with arguments:")
     print(json.dumps(start_build_kwargs))
 
     build = codebuild.start_build(**start_build_kwargs)["build"]

@@ -28,14 +28,26 @@ variable "codebuild_extra_environment_variables" {
   default     = []
 }
 
-variable "repository_customizations" {
+variable "codecommit_repositories_customizations" {
   type        = map(object({ codebuild_service_role_arn = string }))
-  description = "Mapping of CodeCommit repository names to a map of customizations. Available customization attributes: codebuild_service_role_arn. codebuild_service_role_arn should trust service principal \"codebuild.amazonaws.com\"."
+  description = "Map of CodeCommit repository names to a map of customizations for the repository. Available customization attributes: codebuild_service_role_arn. codebuild_service_role_arn should trust service principal \"codebuild.amazonaws.com\"."
   default     = {}
 }
 
 variable "codecommit_approval_rule_template_associated_repositories" {
   type        = list(string)
   description = "List of existing CodeCommit repositories to which an approval rule template will be applied requiring successful CodeBuild build on pull requests"
+  default     = []
+}
+
+variable "codecommit_repositories_allowed" {
+  type        = list(string)
+  description = "List of CodeCommit repositories to be built. If left empty, and `codecommit_repositories_denied` is not specified, all repositories will be built."
+  default     = []
+}
+
+variable "codecommit_repositories_denied" {
+  type        = list(string)
+  description = "List of CodeCommit repositories to never be built. If left empty, and `codecommit_repositories_allowed` is not specified, all repositories will be built."
   default     = []
 }

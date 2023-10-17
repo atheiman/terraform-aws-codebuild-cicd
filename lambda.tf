@@ -1,7 +1,7 @@
 locals {
   custom_codebuild_service_role_arns = distinct(
     compact(
-      [for r in var.repository_customizations : lookup(r, "codebuild_service_role_arn", null)]
+      [for r in var.codecommit_repositories_customizations : lookup(r, "codebuild_service_role_arn", null)]
     )
   )
 }
@@ -96,7 +96,9 @@ resource "aws_lambda_function" "codebuild_start_build" {
     variables = {
       CODEBUILD_PROJECT_NAME                       = aws_codebuild_project.cicd.name
       CODEBUILD_LOAD_BUILDSPEC_FROM_DEFAULT_BRANCH = var.codebuild_load_buildspec_from_default_branch
-      REPOSITORY_CUSTOMIZATIONS_JSON               = jsonencode(var.repository_customizations)
+      CODECOMMIT_REPOSITORIES_CUSTOMIZATIONS_JSON  = jsonencode(var.codecommit_repositories_customizations)
+      CODECOMMIT_REPOSITORIES_ALLOWED_JSON         = jsonencode(var.codecommit_repositories_allowed)
+      CODECOMMIT_REPOSITORIES_DENIED_JSON          = jsonencode(var.codecommit_repositories_denied)
     }
   }
 }

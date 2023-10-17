@@ -29,7 +29,6 @@ resource "aws_iam_policy" "codebuild" {
       {
         Effect = "Allow"
         Action = [
-          # TODO: restrict to specific repos if a repo name filter is provided
           "codecommit:GitPull",
         ]
         Resource = "*"

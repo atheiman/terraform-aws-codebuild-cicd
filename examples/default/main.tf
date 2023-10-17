@@ -16,11 +16,14 @@ module "codebuild_cicd" {
       value = 4
     },
   ]
-  repository_customizations = {
+  codecommit_repositories_customizations = {
     "example-cicd-usage" = {
       codebuild_service_role_arn = aws_iam_role.codebuild_service_role.arn
     }
   }
+  codecommit_repositories_allowed = ["example-cicd-usage"]
+  # deny list is not necessary because allow list defined above
+  codecommit_repositories_denied = ["never-build-this-repo"]
 }
 
 resource "aws_iam_role" "codebuild_service_role" {

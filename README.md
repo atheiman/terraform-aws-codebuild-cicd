@@ -41,7 +41,7 @@ module "codebuild_cicd" {
   codecommit_approval_rule_template_associated_repositories = ["my-repository"]
 
   # Mapping of repository names to custom settings.
-  repository_customizations = {
+  codecommit_repositories_customizations = {
     "my-repository" = {
       # Ensure the service role trusts service principal "codebuild.amazonaws.com". Module output
       # `codebuild_service_role_policy_arn` is the minimum IAM policy to apply to custom service
@@ -49,6 +49,10 @@ module "codebuild_cicd" {
       codebuild_service_role_arn = aws_iam_role.my_custom_codebuild_service_role.arn
     }
   }
+
+  # Define an allow list or deny list of repository names, or all repos will be built by default
+  codecommit_repositories_allowed = ["my-favorite-repo", "another-repo"]
+  codecommit_repositories_denied  = ["never-build-this-repo"]
 }
 ```
 
@@ -183,17 +187,9 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
 
 ## Roadmap
 
-1. Only build pull requests once approved by a different user or commented on (similar to Jenkins comment to build feature)
 1. Readme updated to show detailed instructions for managing this infrastructure via codecommit / codebuild
-1. Repositories mapped to CodeBuild IAM service roles
-   - Example: repos `a` and `b` use service role `admin` but all other repos use the default service role
-   - Implement with complex pattern matching. Dedicated eventbridge rules for each declared repo using `StartBuild` parameter `serviceRoleOverride`. Default rules will need to exclude those repos.
-   - Need to declare default permissions in managed policy and output policy arn for other roles to attach.
-1. Repository name pattern matching to limit which repositories builds are executed for
-   - List and/or pattern of repo names to build / not build? Probably easier to just do a list of what to build and what not to build?
 1. Restrict elevated permissions to `main` / `master` builds?
 1. Build for codecommit repos in other regions
    - README explanation of cross region event routing https://aws.amazon.com/blogs/compute/introducing-cross-region-event-routing-with-amazon-eventbridge/
 1. Support additional tools installed in codebuild image / custom codebuild images?
 1. Pull request comment Lambda function to check for `buildspec.yml` in branch - if build errors because `buildspec.yml` not found, comment on pull request that the repo should add a `buildspec.yml` to use CI/CD.
-1. Create and apply a pull request approval template that requires pull request Lambda function to approve a pull request? Would only want to apply to a specified list of repositories.
