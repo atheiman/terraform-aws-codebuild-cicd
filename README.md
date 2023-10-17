@@ -42,7 +42,7 @@ module "codebuild_cicd" {
 
   # Mapping of repository names to custom settings.
   codecommit_repositories_customizations = {
-    "my-repository" = {
+    "my-favorite-repo" = {
       # Ensure the service role trusts service principal "codebuild.amazonaws.com". Module output
       # `codebuild_service_role_policy_arn` is the minimum IAM policy to apply to custom service
       # roles for basic CodeBuild functionality.
@@ -50,7 +50,7 @@ module "codebuild_cicd" {
     }
   }
 
-  # Define an allow list or deny list of repository names, or all repos will be built by default
+  # Define an allow list *OR* a deny list of repository names, or all repos will be built by default
   codecommit_repositories_allowed = ["my-favorite-repo", "another-repo"]
   codecommit_repositories_denied  = ["never-build-this-repo"]
 }
