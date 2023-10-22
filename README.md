@@ -188,8 +188,9 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
 ## Roadmap
 
 1. Readme updated to show detailed instructions for managing this infrastructure via codecommit / codebuild
-1. Restrict elevated permissions to `main` / `master` builds?
+1. Pull request comment Lambda function to check for `buildspec.yml` in branch - if build errors because `buildspec.yml` not found, comment on pull request that the repo should add a `buildspec.yml` to use CI/CD.
+1. Run CodeBuild inside a VPC - accept vpc config in variables
 1. Build for codecommit repos in other regions
    - README explanation of cross region event routing https://aws.amazon.com/blogs/compute/introducing-cross-region-event-routing-with-amazon-eventbridge/
+   - Customization logic is based off repo name, would need to update to optionally use arn
 1. Support additional tools installed in codebuild image / custom codebuild images?
-1. Pull request comment Lambda function to check for `buildspec.yml` in branch - if build errors because `buildspec.yml` not found, comment on pull request that the repo should add a `buildspec.yml` to use CI/CD.
