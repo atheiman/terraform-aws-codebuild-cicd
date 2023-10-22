@@ -5,6 +5,8 @@ Terraform module to quickly setup a CodeBuild project linked to multiple CodeCom
 - GitHub: https://github.com/atheiman/terraform-aws-codebuild-cicd
 - Terraform Registry: https://registry.terraform.io/modules/atheiman/codebuild-cicd/aws
 
+![Build Workflow Diagram](/img/build-workflow-diagram.drawio.png)
+
 ## Module Example Usage
 
 ```hcl
