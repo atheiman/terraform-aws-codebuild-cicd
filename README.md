@@ -93,7 +93,7 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
 
 ### Deploy the Terraform project
 
-1. In a new directory, reference this Terraform module and specify an external [Terraform Backend](https://developer.hashicorp.com/terraform/language/settings/backends/configuration). If you need an [S3 backend](https://developer.hashicorp.com/terraform/language/settings/backends/s3), you can create one in your account using [this CloudFormation template](https://gist.githubusercontent.com/atheiman/055cfc07fe3cbdc7ec54fa40b180900d/raw/9716e27ddd67a1b5094a59424b68f171eba729f3/TerraformS3Backend.yml).
+1. In a new directory, reference this Terraform module and specify an external [Terraform Backend](https://developer.hashicorp.com/terraform/language/settings/backends/configuration). If you need an [S3 backend](https://developer.hashicorp.com/terraform/language/settings/backends/s3), you can create one in your account using [this CloudFormation template](https://gist.github.com/atheiman/055cfc07fe3cbdc7ec54fa40b180900d).
    ```hcl
    # main.tf
 
@@ -185,7 +185,7 @@ You can view the variables available from CodeBuild here: https://docs.aws.amazo
 1. Put the Terraform from above into a new CodeCommit repository. You will need at least the `module {}` reference, and the `backend {}` configuration. Optionally add a [`.gitignore` for Terraform](https://www.toptal.com/developers/gitignore/api/terraform) and `README.md`.
 1. Update the `buildspec.yml` commands:
    - all branches: `terraform fmt -recursive && terraform init -reconfigure && terraform plan`
-   - `main` branch: `terraform apply`
+   - `main` branch: `terraform apply -auto-approve`
 
 ## Roadmap
 
