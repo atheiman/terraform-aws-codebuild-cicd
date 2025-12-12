@@ -52,7 +52,7 @@ module "codebuild_cicd" {
     }
   }
 
-  # Define an allow list *OR* a deny list of repository names, or all repos will be built by default
+  # Define an allow list or a deny list of repository names, or all repos will be built by default
   codecommit_repositories_allowed = ["my-favorite-repo", "another-repo"]
   codecommit_repositories_denied  = ["never-build-this-repo"]
 }
