@@ -78,7 +78,7 @@ def handler(event, context):
     repo_arn = event["resources"][0]
     repo_name = repo_arn.split(":")[-1]
     buildspec = "buildspec.yml"
-    repo = codecommit.get_repository(repositoryName="example-cicd-usage")["repositoryMetadata"]
+    repo = codecommit.get_repository(repositoryName=repo_name)["repositoryMetadata"]
     default_branch = repo["defaultBranch"]
 
     repos_denied = json.loads(os.environ["CODECOMMIT_REPOSITORIES_DENIED_JSON"])
